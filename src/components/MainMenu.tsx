@@ -14,11 +14,15 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import { useCart } from '../context/CartContext';
+import CartDrawer from './CartDrawer';
 
 const pages = ['Inicio', 'Productos', 'Categorías', 'Ofertas', 'Contacto'];
 
 function MainMenu() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const { getCartCount } = useCart();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -26,6 +30,14 @@ function MainMenu() {
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
+  };
+
+  const handleCartOpen = () => {
+    setCartOpen(true);
+  };
+
+  const handleCartClose = () => {
+    setCartOpen(false);
   };
 
   return (
@@ -126,14 +138,22 @@ function MainMenu() {
 
           {/* Carrito de compras */}
           <Box sx={{ flexGrow: 0 }}>
-            <IconButton size="large" aria-label="carrito de compras" color="inherit">
-              <Badge badgeContent={3} color="error">
+            <IconButton 
+              size="large" 
+              aria-label="carrito de compras" 
+              color="inherit"
+              onClick={handleCartOpen}
+            >
+              <Badge badgeContent={getCartCount()} color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
           </Box>
         </Toolbar>
       </Container>
+
+      {/* Cart Drawer */}
+      <CartDrawer open={cartOpen} onClose={handleCartClose} />
     </AppBar>
   );
 }
