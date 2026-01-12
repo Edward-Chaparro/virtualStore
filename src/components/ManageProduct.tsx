@@ -12,7 +12,6 @@ import {
   Typography,
   Container,
   CircularProgress,
-  Alert,
   Avatar,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
@@ -20,6 +19,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Product } from '../types/Product';
+import axios from 'axios';
+//import ConfirmDialog from './ConfirmDialog';
+import InfoDialog from './InfoDialog';
 
 const API_URL = 'https://fakestoreapi.com/products';
 
@@ -27,9 +29,14 @@ function ManageProduct() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [successDialog, setSuccessDialog] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+  }>({ open: false, title: '', message: '' });
   const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     title: '',
     description: '',
@@ -46,10 +53,8 @@ function ManageProduct() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Error al cargar productos');
-      const data = await response.json();
-      setProducts(data);
+      const response = await axios.get(API_URL);
+      setProducts(response.data);
       setError(null);
     } catch (err) {
       setError('No se pudieron cargar los productos de FakeStoreAPI');
@@ -85,7 +90,6 @@ function ManageProduct() {
   const handleClose = () => {
     setOpen(false);
     setEditingProduct(null);
-    setSuccess(null);
   };
 
   const handleChange = (field: keyof Omit<Product, 'id'>) => (
@@ -100,34 +104,36 @@ function ManageProduct() {
   const handleSave = async () => {
     try {
       if (editingProduct) {
-        // Actualizar producto (simulado)
-        const response = await fetch(`${API_URL}/${editingProduct.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-        if (!response.ok) throw new Error('Error al actualizar');
-        
-        // Actualizar localmente (FakeAPI no persiste los cambios)
+        // Actualizar producto (simulado) con axios
+        const response = await axios.put(`${API_URL}/${editingProduct.id}`, formData);
+        if (response.status < 200 || response.status >= 300) throw new Error('Error al actualizar');
+
+        // Actualizar localmente
         setProducts(products.map(p => 
           p.id === editingProduct.id 
             ? { ...editingProduct, ...formData } 
             : p
         ));
-        setSuccess('✅ Producto actualizado (simulado - FakeStoreAPI no persiste cambios)');
-      } else {
-        // Crear nuevo producto (simulado)
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+
+        setSuccessDialog({
+          open: true,
+          title: 'Producto actualizado',
+          message: 'El producto se ha actualizado correctamente (simulado).',
         });
-        if (!response.ok) throw new Error('Error al crear');
-        const newProduct = await response.json();
-        
+      } else {
+        // Crear nuevo producto (simulado) con axios
+        const response = await axios.post(API_URL, formData);
+        if (response.status < 200 || response.status >= 300) throw new Error('Error al crear');
+        const newProduct = response.data;
+
         // Agregar localmente
         setProducts([...products, { ...formData, id: newProduct.id }]);
-        setSuccess('✅ Producto creado (simulado - FakeStoreAPI no persiste cambios)');
+
+        setSuccessDialog({
+          open: true,
+          title: 'Producto creado',
+          message: 'El producto se ha creado correctamente (simulado).',
+        });
       }
       handleClose();
     } catch (err) {
@@ -136,24 +142,31 @@ function ManageProduct() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm('¿Estás seguro de eliminar este producto?')) return;
+  const handleDeleteClick = (id: number) => {
+    setConfirmDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmDelete === null) return;
     
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
+      const response = await axios.delete(`${API_URL}/${confirmDelete}`);
+      if (response.status < 200 || response.status >= 300) throw new Error('Error al eliminar');
+
+      // Eliminar localmente
+      setProducts(products.filter(p => p.id !== confirmDelete));
+
+      setSuccessDialog({
+        open: true,
+        title: 'Producto eliminado',
+        message: 'El producto se ha eliminado correctamente (simulado).',
       });
-      if (!response.ok) throw new Error('Error al eliminar');
-      
-      // Eliminar localmente (FakeAPI no persiste)
-      setProducts(products.filter(p => p.id !== id));
-      setSuccess('✅ Producto eliminado (simulado - FakeStoreAPI no persiste cambios)');
-      
-      // Limpiar mensaje después de 3 segundos
-      setTimeout(() => setSuccess(null), 3000);
+
+      setConfirmDelete(null);
     } catch (err) {
       setError('Error al eliminar el producto');
       console.error(err);
+      setConfirmDelete(null);
     }
   };
 
@@ -206,7 +219,7 @@ function ManageProduct() {
           </IconButton>
           <IconButton
             color="error"
-            onClick={() => handleDelete(params.row.id)}
+            onClick={() => handleDeleteClick(params.row.id)}
             size="small"
           >
             <DeleteIcon />
@@ -227,15 +240,13 @@ function ManageProduct() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-      
-      {success && (
-        <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess(null)}>
-          {success}
-        </Alert>
+        <InfoDialog
+          open={true}
+          title="Error"
+          message={error}
+          type="error"
+          onClose={() => setError(null)}
+        />
       )}
       
       <Paper sx={{ p: 3 }}>

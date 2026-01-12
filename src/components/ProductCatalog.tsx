@@ -12,11 +12,13 @@ import {
   Alert,
   Box,
   Chip,
+  Snackbar,
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import { Product } from '../types/Product';
 import { useCart } from '../context/CartContext';
 import ProductFilters from './ProductFilters';
+import axios from 'axios';
 
 const API_URL = 'https://fakestoreapi.com/products';
 
@@ -27,6 +29,7 @@ function ProductCatalog() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('default');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -36,10 +39,8 @@ function ProductCatalog() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Error al cargar productos');
-      const data = await response.json();
-      setProducts(data);
+      const response = await axios.get(API_URL);
+      setProducts(response.data);
       setError(null);
     } catch (err) {
       setError('No se pudieron cargar los productos');
@@ -97,6 +98,7 @@ function ProductCatalog() {
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
+    setSnackbar({ open: true, message: `"${product.title}" agregado al carrito` });
   };
 
   if (loading) {
@@ -239,6 +241,15 @@ function ProductCatalog() {
           ))}
         </Grid>
       )}
+
+      {/* Snackbar de confirmación */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ open: false, message: '' })}
+        message={snackbar.message}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      />
     </Container>
   );
 }
