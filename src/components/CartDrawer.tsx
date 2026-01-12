@@ -18,6 +18,9 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import { useCart } from '../context/CartContext';
+import { useState } from 'react';
+import ConfirmDialog from './ConfirmDialog';
+import InfoDialog from './InfoDialog';
 
 interface CartDrawerProps {
   open: boolean;
@@ -26,10 +29,43 @@ interface CartDrawerProps {
 
 function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getCartTotal } = useCart();
+  const [confirmCheckout, setConfirmCheckout] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+  const [successDialog, setSuccessDialog] = useState(false);
 
   const handleCheckout = () => {
-    alert(`Total a pagar: $${getCartTotal().toFixed(2)}\n\n¡Gracias por tu compra!`);
+    setConfirmCheckout(true);
+  };
+
+  const handleConfirmCheckout = () => {
+    setConfirmCheckout(false);
+    setSuccessDialog(true);
     clearCart();
+  };
+
+  const handleClearCart = () => {
+    setConfirmClear(true);
+  };
+
+  const handleConfirmClear = () => {
+    clearCart();
+    setConfirmClear(false);
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setConfirmDelete(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (confirmDelete !== null) {
+      removeFromCart(confirmDelete);
+      setConfirmDelete(null);
+    }
+  };
+
+  const handleSuccessClose = () => {
+    setSuccessDialog(false);
     onClose();
   };
 
@@ -66,7 +102,7 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
                     <IconButton
                       edge="end"
                       aria-label="delete"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => handleDeleteClick(item.id)}
                       color="error"
                     >
                       <DeleteIcon />
@@ -161,7 +197,7 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
                 size="small"
                 color="error"
                 sx={{ mt: 1 }}
-                onClick={clearCart}
+                onClick={handleClearCart}
               >
                 Vaciar Carrito
               </Button>
@@ -169,6 +205,49 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
           </>
         )}
       </Box>
+
+      {/* Diálogo de confirmación de compra */}
+      <ConfirmDialog
+        open={confirmCheckout}
+        title="Confirmar compra"
+        message={`¿Deseas finalizar la compra por un total de ${getCartTotal().toFixed(2)}?`}
+        onConfirm={handleConfirmCheckout}
+        onCancel={() => setConfirmCheckout(false)}
+        confirmText="Sí, comprar"
+        confirmColor="success"
+      />
+
+      {/* Diálogo de confirmación de vaciar carrito */}
+      <ConfirmDialog
+        open={confirmClear}
+        title="Vaciar carrito"
+        message="¿Estás seguro de que deseas eliminar todos los productos del carrito?"
+        onConfirm={handleConfirmClear}
+        onCancel={() => setConfirmClear(false)}
+        confirmText="Sí, vaciar"
+        confirmColor="error"
+      />
+
+      {/* Diálogo de confirmación de eliminar producto */}
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        title="Eliminar producto"
+        message="¿Deseas eliminar este producto del carrito?"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmDelete(null)}
+        confirmText="Eliminar"
+        confirmColor="error"
+      />
+
+      {/* Diálogo de éxito */}
+      <InfoDialog
+        open={successDialog}
+        title="¡Compra exitosa!"
+        message="Tu pedido ha sido procesado correctamente. ¡Gracias por tu compra!"
+        type="success"
+        onClose={handleSuccessClose}
+        buttonText="Continuar comprando"
+      />
     </Drawer>
   );
 }
