@@ -49,7 +49,7 @@ function Categories() {
             key={c}
             label={c}
             clickable
-            onClick={() => navigate('/products')}
+            onClick={() => navigate(`/products?category=${encodeURIComponent(c)}`)}
             color="primary"
           />
         ))}

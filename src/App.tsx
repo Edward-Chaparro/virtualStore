@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import MainMenu from './components/MainMenu';
 import ProductCRUD from './components/ManageProduct';
 import { CartProvider } from './context/CartContext';
@@ -15,6 +15,7 @@ function App() {
       <BrowserRouter>
         <Box sx={{ flexGrow: 1 }}>
           <MainMenu />
+          <Toolbar />
 
           <Routes>
             <Route path="/" element={<Home />} />
