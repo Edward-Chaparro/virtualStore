@@ -20,7 +20,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Product } from '../types/Product';
 import axios from 'axios';
-//import ConfirmDialog from './ConfirmDialog';
+import ConfirmDialog from './ConfirmDialog';
 import InfoDialog from './InfoDialog';
 
 const API_URL = 'https://fakestoreapi.com/products';
@@ -349,6 +349,17 @@ function ManageProduct() {
           </Button>
         </DialogActions>
       </Dialog>
+
+        {/* Diálogo de confirmación de eliminar producto */}
+        <ConfirmDialog
+          open={confirmDelete !== null}
+          title="Eliminar producto"
+          message="¿Deseas eliminar este producto?"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDelete(null)}
+          confirmText="Eliminar"
+          confirmColor="error"
+        />
     </Container>
   );
 }

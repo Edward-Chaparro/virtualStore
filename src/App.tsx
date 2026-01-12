@@ -1,32 +1,60 @@
-import { Box, Tabs, Tab } from '@mui/material';
-import { useState } from 'react';
+import { Box } from '@mui/material';
 import MainMenu from './components/MainMenu';
 import ProductCRUD from './components/ManageProduct';
-import ProductCatalog from './components/ProductCatalog';
 import { CartProvider } from './context/CartContext';
+import Home from './pages/Home';
+import ProductsPage from './pages/ProductsPage';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
-  const [currentTab, setCurrentTab] = useState(0);
-
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setCurrentTab(newValue);
-  };
-
   return (
     <CartProvider>
-      <Box sx={{ flexGrow: 1 }}>
-        <MainMenu />
-        
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Catálogo" />
-            <Tab label="Administración" />
-          </Tabs>
-        </Box>
+      <BrowserRouter>
+        <Box sx={{ flexGrow: 1 }}>
+          <MainMenu />
 
-        {currentTab === 0 && <ProductCatalog />}
-        {currentTab === 1 && <ProductCRUD />}
-      </Box>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/admin" element={<ProductCRUD />} />
+            <Route
+              path="/categories"
+              element={
+                <Box sx={{ mt: 4, p: 4 }}>
+                  <h2>Categorías</h2>
+                  <p>Página en construcción.</p>
+                </Box>
+              }
+            />
+            <Route
+              path="/offers"
+              element={
+                <Box sx={{ mt: 4, p: 4 }}>
+                  <h2>Ofertas</h2>
+                  <p>Página en construcción.</p>
+                </Box>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <Box sx={{ mt: 4, p: 4 }}>
+                  <h2>Contacto</h2>
+                  <p>Página en construcción.</p>
+                </Box>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <Box sx={{ mt: 4, p: 4 }}>
+                  <h2>Página no encontrada</h2>
+                </Box>
+              }
+            />
+          </Routes>
+        </Box>
+      </BrowserRouter>
     </CartProvider>
   );
 }

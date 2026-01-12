@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -17,7 +18,14 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import { useCart } from '../context/CartContext';
 import CartDrawer from './CartDrawer';
 
-const pages = ['Inicio', 'Productos', 'Categorías', 'Ofertas', 'Contacto'];
+const pages = [
+  { label: 'Inicio', to: '/' },
+  { label: 'Productos', to: '/products' },
+  { label: 'Categorías', to: '/categories' },
+  { label: 'Ofertas', to: '/offers' },
+  { label: 'Contacto', to: '/contact' },
+  { label: 'Administración', to: '/admin' },
+];
 
 function MainMenu() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
@@ -95,8 +103,13 @@ function MainMenu() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem
+                  key={page.to}
+                  component={Link}
+                  to={page.to}
+                  onClick={handleCloseNavMenu}
+                >
+                  <Typography textAlign="center">{page.label}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -107,8 +120,8 @@ function MainMenu() {
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="/"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -127,11 +140,13 @@ function MainMenu() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.to}
+                component={Link}
+                to={page.to}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                {page.label}
               </Button>
             ))}
           </Box>
