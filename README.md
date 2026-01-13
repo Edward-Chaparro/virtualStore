@@ -71,29 +71,6 @@ cd virtualStore
 
 npm install
 
-# Estructura del proyecto
-src/
-├── components/          # Componentes de React
-│   ├── MainMenu.tsx           # Menú de navegación principal
-│   ├── ProductCatalog.tsx     # Catálogo de productos
-│   ├── ManageProducto.tsx     # Administración de productos
-│   ├── ProductFilters.tsx     # Búsqueda y filtros
-│   ├── CartDrawer.tsx         # Panel lateral del carrito
-│   ├── ConfirmDialog.tsx      # Diálogo de confirmación
-│   └── InfoDialog.tsx         # Diálogo informativo
-├── context/             # Context API
-│   └── CartContext.tsx        # Estado global del carrito
-├── pages/               # Páginas de navegación
-│    └── Home.tsx             # Página principal
-│    └── Products.tsx         # Lista de productos
-│    └── Categories.tsx       # Filtro por categorías
-│    └── Offers.tsx           # Promoción de productos
-│    └── Contact.tsx          # Formulario de contacto
-├── types/               # Tipos de TypeScript
-│   └── Product.ts             # Interface de productos
-├── App.tsx              # Componente principal
-└── main.tsx             # Punto de entrada
-
 # Flujo de Trabajo con Git
 
 ## Este proyecto utiliza un flujo de trabajo con ramas:
