@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -14,11 +15,22 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import { useCart } from '../context/CartContext';
+import CartDrawer from './CartDrawer';
 
-const pages = ['Inicio', 'Productos', 'Categorías', 'Ofertas', 'Contacto'];
+const pages = [
+  { label: 'Inicio', to: '/' },
+  { label: 'Productos', to: '/products' },
+  { label: 'Categorías', to: '/categories' },
+  { label: 'Ofertas', to: '/offers' },
+  { label: 'Contacto', to: '/contact' },
+  { label: 'Administración', to: '/admin' },
+];
 
 function MainMenu() {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const { getCartCount } = useCart();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -28,8 +40,16 @@ function MainMenu() {
     setAnchorElNav(null);
   };
 
+  const handleCartOpen = () => {
+    setCartOpen(true);
+  };
+
+  const handleCartClose = () => {
+    setCartOpen(false);
+  };
+
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           {/* Logo - Desktop */}
@@ -83,8 +103,13 @@ function MainMenu() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem
+                  key={page.to}
+                  component={Link}
+                  to={page.to}
+                  onClick={handleCloseNavMenu}
+                >
+                  <Typography textAlign="center">{page.label}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -95,8 +120,8 @@ function MainMenu() {
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="/"
+            component={Link}
+            to="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -115,25 +140,35 @@ function MainMenu() {
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.to}
+                component={Link}
+                to={page.to}
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                {page.label}
               </Button>
             ))}
           </Box>
 
           {/* Carrito de compras */}
           <Box sx={{ flexGrow: 0 }}>
-            <IconButton size="large" aria-label="carrito de compras" color="inherit">
-              <Badge badgeContent={3} color="error">
+            <IconButton 
+              size="large" 
+              aria-label="carrito de compras" 
+              color="inherit"
+              onClick={handleCartOpen}
+            >
+              <Badge badgeContent={getCartCount()} color="error">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
           </Box>
         </Toolbar>
       </Container>
+
+      {/* Cart Drawer */}
+      <CartDrawer open={cartOpen} onClose={handleCartClose} />
     </AppBar>
   );
 }
