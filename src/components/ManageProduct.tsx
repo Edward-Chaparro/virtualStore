@@ -255,9 +255,6 @@ function ManageProduct() {
             <Typography variant="h4" component="h2">
               Gestión de Productos
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              Usando FakeStoreAPI - Los cambios son simulados y no se persisten
-            </Typography>
           </Box>
           <Button
             variant="contained"

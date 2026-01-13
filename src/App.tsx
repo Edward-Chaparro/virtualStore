@@ -1,9 +1,12 @@
-import { Box } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import MainMenu from './components/MainMenu';
 import ProductCRUD from './components/ManageProduct';
 import { CartProvider } from './context/CartContext';
 import Home from './pages/Home';
 import ProductsPage from './pages/ProductsPage';
+import Categories from './pages/Categories';
+import Offers from './pages/Offers';
+import Contact from './pages/Contact';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -12,38 +15,15 @@ function App() {
       <BrowserRouter>
         <Box sx={{ flexGrow: 1 }}>
           <MainMenu />
+          <Toolbar />
 
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/admin" element={<ProductCRUD />} />
-            <Route
-              path="/categories"
-              element={
-                <Box sx={{ mt: 4, p: 4 }}>
-                  <h2>Categorías</h2>
-                  <p>Página en construcción.</p>
-                </Box>
-              }
-            />
-            <Route
-              path="/offers"
-              element={
-                <Box sx={{ mt: 4, p: 4 }}>
-                  <h2>Ofertas</h2>
-                  <p>Página en construcción.</p>
-                </Box>
-              }
-            />
-            <Route
-              path="/contact"
-              element={
-                <Box sx={{ mt: 4, p: 4 }}>
-                  <h2>Contacto</h2>
-                  <p>Página en construcción.</p>
-                </Box>
-              }
-            />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/offers" element={<Offers />} />
+            <Route path="/contact" element={<Contact />} />
             <Route
               path="*"
               element={

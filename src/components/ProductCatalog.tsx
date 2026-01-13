@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Container,
   Grid as Grid,
@@ -34,7 +35,12 @@ function ProductCatalog() {
 
   useEffect(() => {
     fetchProducts();
+    // Sync category from query param on mount
+    const cat = searchParams.get('category');
+    if (cat) setSelectedCategory(cat);
   }, []);
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fetchProducts = async () => {
     try {
@@ -95,6 +101,18 @@ function ProductCatalog() {
 
     return filtered;
   }, [products, searchTerm, selectedCategory, sortBy]);
+
+  // Update URL when category changes from the UI
+  useEffect(() => {
+    if (!selectedCategory || selectedCategory === 'all') {
+      // remove category param
+      searchParams.delete('category');
+      setSearchParams(searchParams, { replace: true });
+    } else {
+      setSearchParams({ category: selectedCategory }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
